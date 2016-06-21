@@ -2,10 +2,8 @@
 % See the LICENSE file for more information.
 
 -module(jiffy).
--export([decode/1, encode/1, encode/2]).
+-export([init/1, decode/1, encode/1, encode/2]).
 -define(NOT_LOADED, not_loaded(?LINE)).
-
--on_load(init/0).
 
 decode(Data) when is_binary(Data) ->
     case nif_decode(Data) of
@@ -84,16 +82,8 @@ finish_encode(_, _) ->
     throw({error, invalid_ejson}).
 
 
-init() ->
-    PrivDir = case code:priv_dir(?MODULE) of
-        {error, _} ->
-            EbinDir = filename:dirname(code:which(?MODULE)),
-            AppPath = filename:dirname(EbinDir),
-            filename:join(AppPath, "priv");
-        Path ->
-            Path
-    end,
-    erlang:load_nif(filename:join(PrivDir, "jiffy"), 0).
+init(Path) ->
+    erlang:load_nif(Path, 0).
 
 
 not_loaded(Line) ->
